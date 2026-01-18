@@ -1,103 +1,195 @@
-# Quantitative-Trading-Strategy-NIFTY-Regime-Based-System
-This project implements an end-to-end quantitative trading system for the NIFTY index using market data, options analytics, regime detection, rule-based trading, and machine learning.
+📈 NIFTY Regime-Based Quantitative Trading System
+
+A regime-aware quantitative trading framework for the NIFTY index, integrating market microstructure data, derivatives analytics, Hidden Markov Models, and machine learning to achieve robust, risk-adjusted performance.
 
 Name : Riya Phagna
-Roll No. 24/SCA/MCA/040
-The system integrates:
+Roll number : 24/SCA/MCA/040
 
-Robust data engineering
+📌 Project Overview
 
-Advanced feature engineering using options Greeks and volatility
+This project implements an end-to-end systematic trading pipeline designed to adapt dynamically to changing market conditions.
+Rather than applying a single strategy across all environments, the system first detects market regimes and then executes regime-specific trading logic, further enhanced using machine learning-based trade filtering.
 
-Market regime classification using Hidden Markov Models
+🔍 Key Highlights
 
-A regime-filtered EMA trading strategy
+Multi-asset data integration (Spot, Futures, Options)
 
-Machine learning models to enhance trade selection
+Regime detection using Hidden Markov Models (HMM)
 
-High-performance trade (outlier) analysis for deeper insights
+EMA crossover strategy with regime-based execution
 
-The objective is to demonstrate quantitative research, ML engineering, and systematic trading skills in a production-style framework.
+Options Greeks & volatility-driven feature engineering
 
-Data Description
+XGBoost & LSTM models for trade probability filtering
 
-The project uses 5-minute interval data for the last one year:
+Out-of-sample backtesting with detailed performance analytics
 
-NIFTY 50 Spot – OHLCV
+🧠 Strategy Philosophy
 
-NIFTY Futures – Continuous current-month contract with rollover handling
+Markets behave differently under different regimes.
+A strategy that works in trends may fail in ranges.
 
-NIFTY Options – ATM, ATM±1, ATM±2 (Call & Put)
+This system:
 
-All datasets are cleaned, aligned by timestamp, and merged for analysis.
+Identifies market regimes first
 
-Feature Engineering
+Trades selectively based on regime context
 
-The following features are created:
+Avoids low-signal environments
 
-Technical Indicators
+Uses ML models to increase precision, not complexity
 
-EMA (5)
+🗂️ Project Structure
+├── data/
+│   ├── raw/                  # Raw NIFTY spot, futures & options data
+│   ├── processed/            # Cleaned and feature-engineered datasets
+│
+├── notebooks/
+│   ├── 01_data_cleaning.ipynb
+│   ├── 02_feature_engineering.ipynb
+│   ├── 03_regime_detection_hmm.ipynb
+│   ├── 04_strategy_backtesting.ipynb
+│   ├── 05_ml_trade_filtering.ipynb
+│   └── 06_outlier_trade_analysis.ipynb
+│
+├── models/
+│   ├── hmm_model.pkl
+│   ├── xgboost_model.pkl
+│   └── lstm_model.h5
+│
+├── results/
+│   ├── performance_metrics.csv
+│   ├── equity_curves/
+│   └── trade_statistics/
+│
+├── requirements.txt
+├── README.md
+└── LICENSE
 
-EMA (15)
+📊 Data Description
+Instruments Used
 
-Options-Based Features
+NIFTY Spot Index
 
-Delta, Gamma, Theta, Vega, Rho
+NIFTY Futures (Continuous Contract)
+
+NIFTY Options Chain
+
+Data Characteristics
+
+Frequency: 5-minute bars
+
+Futures rollover handled via continuous contract logic
+
+All datasets timestamp-aligned to prevent leakage
+
+🧮 Feature Engineering
+📉 Technical Indicators
+
+EMA (9, 15, 45)
+
+Returns & momentum measures
+
+🧠 Derivatives Features
+
+Options Greeks:
+
+Delta
+
+Gamma
+
+Theta
+
+Vega
+
+Rho
 
 Average Implied Volatility
 
-IV Spread (Call IV − Put IV)
+IV Spread (Call vs Put)
 
-Put-Call Ratio (OI-based and Volume-based)
+📊 Sentiment & Positioning
 
-Delta Neutral Ratio
+Put-Call Ratio (PCR):
 
-Gamma Exposure
+Open Interest-based
 
-Market Features
-
-Spot and Futures Returns
+Volume-based
 
 Futures Basis
 
-The final feature set is saved as:
+🔁 Market Regime Detection
 
-data/features/nifty_features_5min.csv
+Model: Hidden Markov Model (HMM)
 
-Regime Detection
+Number of states: 3
 
-Market regimes are identified using a Hidden Markov Model (HMM) with three states:
+Regimes Identified
+Regime	Interpretation
+Regime 0	Uptrend
+Regime 1	Sideways
+Regime 2	Downtrend
+Training Methodology
 
-+1 : Uptrend
+Trained on first 70% of historical data
 
-0 : Sideways
+Remaining 30% used strictly out-of-sample
 
--1 : Downtrend
+Prevents look-ahead bias
 
-The model is trained on the first 70% of the data using options-driven and volatility-based features.
-Regime labels are used to filter trading signals and reduce noise.
+⚙️ Trading Strategy Logic
+Signal Generation
 
-Trading Strategy
+5 / 15 EMA crossover
 
-A 5/15 EMA crossover strategy is implemented with a regime filter:
+Regime-Based Execution Rules
+Regime	Action
+Uptrend	Long trades only
+Downtrend	Short trades only
+Sideways	No trades
 
-Long Trades:
-EMA(5) crosses above EMA(15) and regime = Uptrend
+This approach:
 
-Short Trades:
-EMA(5) crosses below EMA(15) and regime = Downtrend
+Reduces whipsaw losses
 
-No Trades:
-Sideways regime
+Improves Sharpe & drawdown profile
 
-Trades are executed at the next candle open to avoid look-ahead bias.
+Filters low-conviction signals
 
-Backtesting & Performance Metrics
+🤖 Machine Learning Enhancement
 
-The strategy is backtested using a train-test split (70% / 30%).
+To further refine trade quality:
 
-Performance metrics include:
+Models Used
+
+XGBoost (Tree-based classifier)
+
+LSTM (Sequence model)
+
+ML Objective
+
+Binary classification:
+
+1 → Trade likely profitable
+
+0 → Trade likely unprofitable
+
+ML Integration
+
+Trades executed only if predicted probability exceeds threshold
+
+Acts as a confidence filter, not a signal generator
+
+📈 Backtesting & Performance Evaluation
+Evaluation Framework
+
+Strict out-of-sample testing
+
+No parameter leakage
+
+Trade-by-trade analytics
+
+Key Metrics
 
 Total Return
 
@@ -105,105 +197,34 @@ Sharpe Ratio
 
 Sortino Ratio
 
-Calmar Ratio
-
 Maximum Drawdown
 
 Win Rate
 
-Profit Factor
+Average Trade Return
 
-Average Trade Duration
+🚨 Outlier Trade Analysis
 
-Machine Learning Enhancement
+Identification of extreme winners using 3-sigma rule
 
-To improve trade quality, a binary classification problem is defined:
+Trade segmentation by:
 
-Target = 1 if trade is profitable, else 0
+Market regime
 
-Models Used
+Greeks exposure
 
-XGBoost Classifier
+Time of day
 
-LSTM Neural Network (10-candle sequence input)
+Insights Extracted
 
-Trades are executed only when the ML model predicts profitability with confidence > 0.5.
-Performance is compared between:
+Specific volatility regimes produce outsized returns
 
-Baseline strategy
+Certain intraday windows outperform consistently
 
-XGBoost-filtered strategy
+Provides guidance for:
 
-LSTM-filtered strategy
+Position sizing
 
-Outlier Trade Analysis
+Time-based filters
 
-High-performance trades are identified using a 3-sigma (Z-score) rule.
-
-Analysis includes:
-
-Regime distribution
-
-IV and Greeks behavior
-
-Time-of-day patterns
-
-Trade duration and EMA gap
-
-Statistical tests and visualizations are used to compare outlier trades with normal profitable trades.
-
-Repository Structure
-quant-nifty-regime-strategy/
-│
-├── data/
-│   ├── raw/
-│   ├── cleaned/
-│   └── features/
-│
-├── notebooks/
-│   ├── 01_data_acquisition.ipynb
-│   ├── 02_data_cleaning.ipynb
-│   ├── 03_feature_engineering.ipynb
-│   ├── 04_regime_detection.ipynb
-│   ├── 05_baseline_strategy.ipynb
-│   ├── 06_ml_models.ipynb
-│   └── 07_outlier_analysis.ipynb
-│
-├── src/
-│   ├── data_utils.py
-│   ├── features.py
-│   ├── greeks.py
-│   ├── regime.py
-│   ├── strategy.py
-│   ├── backtest.py
-│   └── ml_models.py
-│
-├── models/
-├── results/
-├── plots/
-├── requirements.txt
-├── README.md
-└── data_cleaning_report.txt
-
-Installation & Setup
-git clone <repository-url>
-cd quant-nifty-regime-strategy
-pip install -r requirements.txt
-
-
-Run notebooks sequentially from 01_data_acquisition.ipynb to 07_outlier_analysis.ipynb.
-
-Key Results Summary:
-
-Regime-based filtering significantly reduces drawdowns
-
-Options-based features improve regime classification
-
-Machine learning models enhance risk-adjusted returns
-
-Outlier trades reveal strong regime and volatility pattern
-
-
-Prepare interview Q&A from this README
-
-Just tell me 👍
+Risk allocation
